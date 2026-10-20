@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Birthday Quest 💙</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%;margin:0}
+body{font-family:'Fredoka','Segoe UI',system-ui,sans-serif;color:#0f2a5c;background:linear-gradient(160deg,#e8f3ff,#bcdcff 55%,#8ec3ff);overflow:hidden;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#app{max-width:480px;height:100%;margin:auto;position:relative}
+.scr{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:14px}
+.scr.on{display:flex}
+h1{margin:0;font-size:2rem;line-height:1.2}
+p{margin:0;max-width:320px;line-height:1.5}
+.tag{background:#fff;border-radius:999px;padding:6px 16px;font-weight:600;color:#2563eb;box-shadow:0 3px 8px #2563eb22}
+.btn{font:inherit;font-weight:600;font-size:1.1rem;border:0;padding:14px 30px;border-radius:999px;color:#fff;background:linear-gradient(#5aa7ff,#2563eb);box-shadow:0 6px 0 #1a46a8,0 10px 20px #2563eb55;cursor:pointer;transition:.08s}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #1a46a8}
+.btn.alt{background:linear-gradient(#fff,#dcecff);color:#2563eb;box-shadow:0 6px 0 #a9c9f5}
+.emoji{font-size:4.5rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-10px) rotate(5deg)}}
+#play{justify-content:flex-start;align-items:stretch;padding:12px;gap:8px}
+.hud{display:flex;justify-content:space-between;align-items:center;font-weight:600;gap:6px}
+.pill{background:#fff;border-radius:999px;padding:6px 14px;box-shadow:0 3px 8px #2563eb22;white-space:nowrap}
+.bar{height:10px;background:#fff;border-radius:9px;overflow:hidden}
+#fill{height:100%;width:100%;background:linear-gradient(90deg,#5aa7ff,#2563eb);transition:width .1s linear}
+#area{flex:1;position:relative;overflow:hidden;border-radius:24px;background:#ffffff88;box-shadow:inset 0 0 0 3px #fff;touch-action:none}
+.ball{position:absolute;font-size:3rem;line-height:1;cursor:pointer}
+.blu{filter:hue-rotate(190deg) saturate(1.3)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px;height:100%;align-content:center}
+.card{font:inherit;font-size:2.4rem;aspect-ratio:1;border:0;border-radius:18px;background:linear-gradient(#5aa7ff,#2563eb);color:#fff;box-shadow:0 5px 0 #1a46a8;transition:.15s;padding:0}
+.card.up{background:#fff;color:#0f2a5c;box-shadow:0 5px 0 #a9c9f5}
+.card.ok{opacity:.55}
+.basket{position:absolute;bottom:10px;left:0;font-size:3.2rem;line-height:1;width:60px;text-align:center}
+.item{position:absolute;left:0;top:0;font-size:2.2rem;line-height:1}
+.simon{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px;height:100%;align-content:center}
+.pad{border:0;border-radius:26px;aspect-ratio:1;font-size:2.6rem;box-shadow:0 6px 0 #0003;transition:.12s}
+.pad:nth-child(1){background:#7cb8ff}.pad:nth-child(2){background:#4f94f5}.pad:nth-child(3){background:#2f6fe0}.pad:nth-child(4){background:#1d4fb8}
+.pad.lit{filter:brightness(1.7) saturate(1.3);transform:scale(.94)}
+.conf{position:fixed;top:-40px;z-index:9;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(115vh) rotate(360deg)}}
+.cardx{background:#fff;border-radius:28px;padding:22px 20px;box-shadow:0 12px 30px #2563eb33;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:340px}
+#bub{min-height:52px;display:flex;align-items:center;justify-content:center;background:#e8f3ff;border-radius:18px;padding:10px 16px;font-weight:600;color:#2563eb;width:100%}
+.pop{animation:pop .35s}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+</style>
+</head>
+<body>
+<div id="app">
+  <section class="scr on" id="home">
+    <div class="emoji">🎂</div>
+    <span class="tag">Birthday Quest 💙</span>
+    <h1>Untuk <span id="nm">bebeee.</span></h1>
+    <p>Selamat ngerjain ini bee, hehe.</p>
+    <button class="btn" id="start">START</button>
+  </section>
+
+  <section class="scr" id="intro">
+    <span class="tag" id="iNum"></span>
+    <h1 id="iTitle"></h1>
+    <p id="iDesc"></p>
+    <button class="btn" id="go">Siap!</button>
+  </section>
+
+  <section class="scr" id="play">
+    <div class="hud"><span class="pill" id="hTitle"></span><span class="pill" id="hInfo"></span><span class="pill" id="tm"></span></div>
+    <div class="bar"><div id="fill"></div></div>
+    <div id="area"></div>
+  </section>
+
+  <section class="scr" id="res">
+    <div class="emoji" id="resE"></div>
+    <h1 id="resT"></h1>
+    <p id="resP"></p>
+    <button class="btn" id="resB"></button>
+  </section>
+
+  <section class="scr" id="end">
+    <div class="cardx">
+      <div class="emoji" style="font-size:3.4rem">🎉</div>
+      <h1>Selamat Ulang Tahun, <span id="nm2"></span>! 🎂</h1>
+      <p id="msg"></p>
+      <div id="bub">Tengok bawah</div>
+      <div class="row">
+        <button class="btn" id="sp">💌 TAP</button>
+        <button class="btn alt" id="again">Main lagi</button>
+      </div>
+      <p style="font-size:.9rem;opacity:.7" id="frm"></p>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ====== GANTI DI SINI ====== */
+const NAME = "Bebeey.";
+const FROM = "Papimu palinh ganteng.";
+const MESSAGE = "May you live a long life, always be healthy, and all your dreams one by one come true. Thank you for being a part of this exciting story!";
+const WORDS = ["Type /Clebe di GC for the Next yaa."];
+/* =========================== */
+
+const $ = s => document.querySelector(s);
+$('#nm').textContent = $('#nm2').textContent = NAME;
+$('#msg').textContent = MESSAGE;
+$('#frm').textContent = FROM;
+
+/* Suara */
+let ac;
+function snd(f, d = .12, t = 'sine', v = .15, w = 0) {
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain(), s = ac.currentTime + w;
+    o.type = t; o.frequency.value = f;
+    g.gain.setValueAtTime(v, s); g.gain.exponentialRampToValueAtTime(.001, s + d);
+    o.connect(g); g.connect(ac.destination); o.start(s); o.stop(s + d);
+  } catch (e) {}
+}
+const S = {
+  tap: () => snd(660, .08),
+  good: () => { snd(880, .1); snd(1175, .12, 'sine', .15, .07); },
+  bad: () => snd(160, .25, 'sawtooth', .12),
+  win: () => [523, 659, 784, 1047].forEach((f, i) => snd(f, .22, 'triangle', .18, i * .12))
+};
+document.addEventListener('pointerdown', e => { if (e.target.closest('button')) S.tap(); });
+
+/* Engine */
+const area = $('#area');
+let cur = 0, left = 0, total = 0, tick = null, raf = 0, done = false, cleanup = () => {}, conf = null;
+const show = id => document.querySelectorAll('.scr').forEach(s => s.classList.toggle('on', s.id === id));
+function clearAll() { clearInterval(tick); cancelAnimationFrame(raf); cleanup(); cleanup = () => {}; area.innerHTML = ''; }
+function begin(i) {
+  cur = i; done = true; clearAll(); show('intro');
+  $('#iNum').textContent = 'Level ' + (i + 1) + ' / ' + ST.length;
+  $('#iTitle').textContent = ST[i].t; $('#iDesc').textContent = ST[i].d;
+}
+function upd() {
+  $('#tm').textContent = '⏱ ' + Math.max(0, Math.ceil(left));
+  $('#fill').style.width = Math.max(0, left / total * 100) + '%';
+}
+function go() {
+  show('play'); area.innerHTML = ''; done = false;
+  const st = ST[cur]; total = left = st.time;
+  $('#hTitle').textContent = 'Level ' + (cur + 1); upd();
+  clearInterval(tick);
+  tick = setInterval(() => { left -= .1; upd(); if (left <= 0) end(false); }, 100);
+  cleanup = st.init(area, () => end(true), () => end(false));
+}
+function end(ok) {
+  if (done) return; done = true; clearAll();
+  if (ok) {
+    S.win();
+    if (cur === ST.length - 1) return finale();
+    fill('🎉', 'Kelar', 'Mantap! Lanjut ke level selanjutnya.', 'Lanjut', () => begin(cur + 1));
+  } else {
+    S.bad();
+    fill('😵', 'Yah, gagal!', 'Tenang, coba lagi pasti bisa 💪', 'Ulangi', () => begin(cur));
+  }
+}
+function fill(e, t, p, b, fn) {
+  $('#resE').textContent = e; $('#resT').textContent = t; $('#resP').textContent = p;
+  $('#resB').textContent = b; $('#resB').onclick = fn; show('res');
+}
+function confetti(n = 1) {
+  const E = ['🎉', '💙', '✨', '🎈', '⭐', '🎊'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div'); c.className = 'conf';
+    c.textContent = E[Math.random() * E.length | 0];
+    c.style.left = Math.random() * 100 + 'vw'; c.style.fontSize = 18 + Math.random() * 22 + 'px';
+    c.style.animationDuration = 3 + Math.random() * 3 + 's';
+    document.body.appendChild(c); setTimeout(() => c.remove(), 6500);
+  }
+}
+function finale() { show('end'); confetti(30); clearInterval(conf); conf = setInterval(() => confetti(2), 600); }
+
+/* Level */
+const ST = [
+  { /* 1: Balon */
+    t: 'Pecahin Balon 🎈', d: 'Pecahin 15 balon biru dalam 20 detik. Awas bom 💣, kena = -3!', time: 20,
+    init(a, win) {
+      let n = 0; const set = () => $('#hInfo').textContent = '🎈 ' + n + '/15'; set();
+      const sp = setInterval(() => {
+        const bomb = Math.random() < .22, b = document.createElement('div');
+        b.className = 'ball' + (bomb ? '' : ' blu'); b.textContent = bomb ? '💣' : '🎈';
+        b.style.left = Math.random() * (a.clientWidth - 56) + 'px'; b.style.top = a.clientHeight + 'px';
+        b.style.transition = `transform ${1.8 + Math.random() * 1.5}s linear`;
+        a.appendChild(b);
+        requestAnimationFrame(() => requestAnimationFrame(() => b.style.transform = `translateY(-${a.clientHeight + 90}px)`));
+        b.addEventListener('transitionend', () => b.remove());
+        b.onpointerdown = e => {
+          e.preventDefault(); b.onpointerdown = null;
+          if (bomb) { n = Math.max(0, n - 3); S.bad(); } else { n++; S.good(); }
+          b.textContent = '💥'; setTimeout(() => b.remove(), 150); set();
+          if (n >= 15) win();
+        };
+      }, 520);
+      return () => clearInterval(sp);
+    }
+  },
+  { /* 2: Memory */
+    t: 'Cari Pasangan 🧠', d: 'Cocokin 6 pasang kartu dalam 35 detik. Ingat letaknya yee, time: 35,
+    init(a, win) {
+      const E = ['🎂', '🎁', '🎈', '🎉', '💙', '⭐'];
+      const deck = [...E, ...E].sort(() => Math.random() - .5);
+      let open = [], lock = false, m = 0;
+      const set = () => $('#hInfo').textContent = '💞 ' + m + '/6'; set();
+      const g = document.createElement('div'); g.className = 'grid'; a.appendChild(g);
+      deck.forEach(e => {
+        const c = document.createElement('button'); c.className = 'card'; c.textContent = '?';
+        c.onclick = () => {
+          if (lock || c.classList.contains('up')) return;
+          c.classList.add('up'); c.textContent = e; open.push(c);
+          if (open.length < 2) return;
+          lock = true;
+          if (open[0].textContent === open[1].textContent) {
+            open.forEach(x => x.classList.add('ok')); open = []; lock = false; m++; S.good(); set();
+            if (m === 6) setTimeout(win, 300);
+          } else {
+            setTimeout(() => { open.forEach(x => { x.classList.remove('up'); x.textContent = '?'; }); open = []; lock = false; S.bad(); }, 650);
+          }
+        };
+        g.appendChild(c);
+      });
+      return () => {};
+    }
+  },
+  { /* 3: Tangkap kado */
+    t: 'Tangkap Kado 🎁', d: 'Geser keranjang, tangkap 12 kado dalam 30 detik. Jangan kena petasan 🧨 (nyawa 3)!', time: 30,
+    init(a, win, lose) {
+      let n = 0, life = 3, items = [], sp = 0, last = performance.now();
+      const W = a.clientWidth, H = a.clientHeight; let bx = W / 2;
+      const set = () => $('#hInfo').textContent = `🎁 ${n}/12 ❤️ ${life}`; set();
+      const bk = document.createElement('div'); bk.className = 'basket'; bk.textContent = '🧺'; a.appendChild(bk);
+      const mv = e => { const r = a.getBoundingClientRect(); bx = Math.min(W - 30, Math.max(30, e.clientX - r.left)); };
+      a.addEventListener('pointermove', mv); a.addEventListener('pointerdown', mv);
+      const loop = t => {
+        if (done) return;
+        const dt = Math.min(.05, (t - last) / 1000); last = t; sp -= dt;
+        if (sp <= 0) {
+          sp = .6; const bad = Math.random() < .3, el = document.createElement('div');
+          el.className = 'item'; el.textContent = bad ? '🧨' : '🎁'; a.appendChild(el);
+          items.push({ el, bad, x: Math.random() * (W - 40), y: -40, v: 150 + Math.random() * 110 + n * 9 });
+        }
+        bk.style.transform = `translateX(${bx - 30}px)`;
+        for (const o of items) {
+          o.y += o.v * dt; o.el.style.transform = `translate(${o.x}px,${o.y}px)`;
+          if (o.y > H - 75 && o.y < H - 20 && Math.abs(o.x + 18 - bx) < 42) {
+            o.dead = 1; o.el.remove();
+            if (o.bad) { life--; S.bad(); } else { n++; S.good(); }
+            set(); if (n >= 12) return win(); if (life <= 0) return lose();
+          } else if (o.y > H) { o.dead = 1; o.el.remove(); }
+        }
+        items = items.filter(o => !o.dead);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+      return () => { a.removeEventListener('pointermove', mv); a.removeEventListener('pointerdown', mv); };
+    }
+  },
+  { /* 4: Simon */
+    t: 'Ingat Urutan 🎵', d: 'Hafalin urutan lampu & nada, lalu ulangi. 5 ronde dalam 60 detik. Salah = urutan diulang!', time: 60,
+    init(a, win) {
+      const F = [392, 494, 587, 698], seq = Array.from({ length: 7 }, () => Math.random() * 4 | 0), tos = [];
+      let round = 1, pos = 0, busy = true;
+      const set = () => $('#hInfo').textContent = '🎵 Ronde ' + Math.min(round, 5) + '/5'; set();
+      const g = document.createElement('div'); g.className = 'simon'; a.appendChild(g);
+      const pads = ['🔵', '💎', '🌀', '🌊'].map((e, i) => {
+        const p = document.createElement('button'); p.className = 'pad'; p.textContent = e;
+        p.onclick = () => press(i); g.appendChild(p); return p;
+      });
+      const T = (fn, ms) => tos.push(setTimeout(fn, ms));
+      function flash(i) { pads[i].classList.add('lit'); snd(F[i], .35, 'triangle', .2); T(() => pads[i].classList.remove('lit'), 300); }
+      function play() {
+        busy = true; pos = 0; const L = round + 2;
+        for (let i = 0; i < L; i++) T(() => flash(seq[i]), 700 + i * 600);
+        T(() => busy = false, 700 + L * 600);
+      }
+      function press(i) {
+        if (busy) return; flash(i);
+        if (i === seq[pos]) {
+          pos++;
+          if (pos === round + 2) { round++; set(); busy = true; if (round > 5) { T(win, 500); return; } S.good(); T(play, 800); }
+        } else { S.bad(); busy = true; T(play, 900); }
+      }
+      play();
+      return () => tos.forEach(clearTimeout);
+    }
+  }
+];
+
+/* Tombol */
+$('#start').onclick = () => begin(0);
+$('#go').onclick = go;
+$('#again').onclick = () => {
+  clearInterval(conf); document.querySelectorAll('.conf').forEach(e => e.remove());
+  $('#bub').textContent = '👇'; k = 0; show('home');
+};
+let k = 0;
+$('#sp').onclick = () => {
+  const b = $('#bub'); b.textContent = WORDS[k++ % WORDS.length];
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+  S.good(); confetti(6);
+};
+</script>
+</body>
+</html>
